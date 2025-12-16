@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Animated Welcome Banner -->
+<div class="welcome-banner">
+    <div class="welcome-left">
+        <h1 class="welcome-title">Welcome Back, {{ username }} 👋</h1>
+        <p class="welcome-sub">Here’s your financial snapshot for today.</p>
+    </div>
+{% if due_popup %}
+<div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+  ⚠ <strong>Reminder:</strong> Your bill <b>{{ due_popup.title }}</b> is due on <b>{{ due_popup.due_date }}</b>.
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+    <div class="welcome-right">
+        <img src="{{ url_for('static', filename='images/character.png') }}" class="welcome-hero" alt="hero">
+        <div id="chatBox" class="chat-box">
+  <div class="chat-header">
+    Chatbot 🤖
+    <span id="closeChat" class="close-btn">&times;</span>
+  </div>
+  <div id="chatMessages" class="chat-messages"></div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Type your message...">
+    <button id="sendChat" class="chat-send-btn">Send</button>
+  </div>
+</div>
+
+    </div>
+
+    <!-- Floating shapes -->
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+</div>
+
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="summary-card shadow-sm">
+      <h6>Total Spent</h6>
+      <h2 class="fw-bold">₹ {{ '%.2f' % (total or 0) }}</h2>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="summary-card shadow-sm">
+      <h6>This Month</h6>
+      <h2 class="fw-bold">₹ {{ '%.2f' % (month_total or 0) }}</h2>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="summary-card shadow-sm">
+      <h6>Daily Average</h6>
+      <h2 class="fw-bold">₹ {{ '%.2f' % (daily_avg or 0) }}</h2>
+    </div>
+  </div>
+</div>
+
+<!-- Income & Balance Row -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="summary-card shadow-sm">
+      <h6>Income</h6>
+      <h2 class="fw-bold text-success">₹ {{ '%.2f' % (income_total or 0) }}</h2>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="summary-card shadow-sm {{ 'text-success' if balance >= 0 else 'text-danger' }}">
+      <h6>Balance</h6>
+      <h2 class="fw-bold">₹ {{ '%.2f' % (balance or 0) }}</h2>
+    </div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="chart-card shadow-sm p-3">
+      <h6 class="mb-3">Category Breakdown</h6>
+      <canvas id="catChart"></canvas>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="chart-card shadow-sm p-3">
+      <h6 class="mb-3">Monthly Expenses</h6>
+      <canvas id="monthChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Comparison Chart -->
+<div class="mt-4">
+  <div class="chart-card shadow-sm p-3">
+    <h6 class="mb-3">Income vs Expenses</h6>
+    <canvas id="compareChart"></canvas>
+  </div>
+</div>
+
+<!-- Recent Expenses -->
+<div class="mt-5">
+  <h4 class="mb-3 fw-bold">Recent Activities</h4>
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Category</th>
+        <th>Note</th>
+        <th>Amount</th>
+        <th>Type</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in recent %}
+      <tr>
+        <td>{{ e.date }}</td>
+        <td><span class="badge bg-primary">{{ e.category }}</span></td>
+        <td>{{ e.note }}</td>
+        <td>₹ {{ '%.2f' % (e.amount or 0) }}</td>
+        <td>
+          {% if e.type == "Income" %}
+            <span class="badge bg-success">Income</span>
+          {% else %}
+            <span class="badge bg-danger">Expense</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if e.type == "Expense" %}
+            <a href="{{ url_for('edit_expense', id=e.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+            <a href="{{ url_for('delete_expense', id=e.id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
+</div>
+<div class="ai-bot-widget" id="aiBotWidget">
+    <img src="{{ url_for('static', filename='images/ai_bot.png') }}" class="ai-bot-img">
+</div>
+
+
+{% endblock %}   {# <-- THIS WAS MISSING #}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/bot.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  var catLabels = {{ cat_labels | default([]) | tojson | safe }};
+  var catValues = {{ cat_values | default([]) | tojson | safe }};
+  var monthLabels = {{ month_labels | default([]) | tojson | safe }};
+  var monthValues = {{ month_values | default([]) | tojson | safe }};
+
+  /* PIE CHART */
+  if (catLabels.length > 0) {
+    new Chart(document.getElementById("catChart"), {
+      type: "doughnut",
+      data: {
+        labels: catLabels,
+        datasets: [{ data: catValues }]
+      }
+    });
+  }
+
+  /* BAR CHART - MONTHLY */
+  if (monthLabels.length > 0) {
+    new Chart(document.getElementById("monthChart"), {
+      type: "bar",
+      data: {
+        labels: monthLabels,
+        datasets: [{ 
+          label: "Expenses", 
+          data: monthValues 
+        }]
+      }
+    });
+  }
+
+  /* INCOME VS EXPENSE CHART */
+  var compareEl = document.getElementById("compareChart");
+  if (compareEl) {
+    new Chart(compareEl, {
+      type: "bar",
+      data: {
+        labels: ["Income", "Expenses"],
+        datasets: [{
+          data: [{{ income_total or 0 }}, {{ total or 0 }}],
+          backgroundColor: ["#4CAF50", "#F44336"]
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+});
+</script>
+
+
+{% endblock %}

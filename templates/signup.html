@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="login-page">
+
+  <div class="login-panel signup-animate">
+
+    <!-- left: signup form -->
+    <div class="login-left">
+
+      <h1 class="brand-title mb-1">Create Account ✨</h1>
+      <p class="brand-sub">Join and track your finance with smart insights.</p>
+
+      <form class="auth-form" method="post">
+
+        <!-- Username -->
+        <div class="form-group animated-field">
+          <label class="small-label">Username</label>
+          <div class="input-pill">
+            <span class="input-icon"><i class="bi bi-person-fill"></i></span>
+            <input type="text" class="form-control no-border" name="username" placeholder="Your name" required>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group animated-field mt-3">
+          <label class="small-label">Email</label>
+          <div class="input-pill">
+            <span class="input-icon"><i class="bi bi-envelope"></i></span>
+            <input type="email" class="form-control no-border" name="email" placeholder="email@gmail.com" required>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group animated-field mt-3">
+          <label class="small-label">Password</label>
+          <div class="input-pill">
+            <span class="input-icon"><i class="bi bi-lock-fill"></i></span>
+            <input type="password" class="form-control no-border" id="passwordSignup" name="password" placeholder="Enter your password" required>
+            <button type="button" class="btn-icon" id="toggleSignupPwd"><i class="bi bi-eye"></i></button>
+          </div>
+        </div>
+
+        <!-- Signup button -->
+        <button class="btn btn-login mt-4 w-100 signup-btn-animate" type="submit">
+          Create Account
+        </button>
+
+        <div class="or-line">
+          <span>— or —</span>
+        </div>
+
+        <!-- Social login buttons -->
+        <div class="social-row signup-social-animate">
+          <button class="social-btn google"><i class="bi bi-google"></i></button>
+          <button class="social-btn facebook"><i class="bi bi-facebook"></i></button>
+          <button class="social-btn apple"><i class="bi bi-apple"></i></button>
+        </div>
+
+        <p class="text-center small mt-3 muted">
+          Already have an account? 
+          <a href="{{ url_for('login') }}" class="link-signup">Login</a>
+        </p>
+      </form>
+
+    </div>
+
+    <!-- right: animated floating graphic -->
+    <div class="login-right signup-art">
+      <img class="signup-hero-img" src="{{ url_for('static', filename='images/character.png') }}" alt="character">
+    </div>
+
+  </div>
+</div>
+{% endblock %}

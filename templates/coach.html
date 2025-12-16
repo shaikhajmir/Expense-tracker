@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}AI Coach{% endblock %}
+
+{% block content %}
+<div class="coach-page">
+
+  <<div class="coach-chat-card">
+
+  <!-- Animated AI character -->
+  <div class="coach-bot">
+    <img src="{{ url_for('static', filename='images/ai_bot.png') }}" class="ai-bot-img" id="aiBot">
+  </div>
+
+  <div class="coach-chat-card">
+    <div class="coach-messages" id="coachMessages">
+      {% if messages|length == 0 %}
+        <div class="coach-empty text-muted">
+          Start by saying hello or ask something like:<br>
+          <code>How am I spending this month?</code>
+        </div>
+      {% endif %}
+
+      {% for m in messages %}
+        <div class="chat-row {{ 'from-user' if m.sender == 'user' else 'from-bot' }}">
+          <div class="chat-bubble">
+            <p style="white-space: pre-line; margin: 0;">{{ m.text }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <form method="post" class="coach-input-row">
+      <input type="text" name="message" class="form-control" placeholder="Ask me something about your spending..." required>
+      <button class="btn btn-primary ms-2">Send</button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

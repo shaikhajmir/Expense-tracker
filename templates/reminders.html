@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Reminders{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold">Your Reminders</h3>
+    <a href="{{ url_for('add_reminder') }}" class="btn btn-success">+ Add Reminder</a>
+  </div>
+
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Bill</th>
+        <th>Amount</th>
+        <th>Due Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reminders %}
+      <tr>
+        <td>{{ r.title }}</td>
+        <td>₹ {{ "%.2f"|format(r.amount) }}</td>
+        <td>{{ r.due_date }}</td>
+        <td>
+          <a href="{{ url_for('delete_reminder', id=r.id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Expenses{% endblock %}
+{% block content %}
+<h3>All Expenses</h3>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-auto">
+    <input type="date" class="form-control" name="from" value="{{ request.args.get('from','') }}">
+  </div>
+  <div class="col-auto">
+    <input type="date" class="form-control" name="to" value="{{ request.args.get('to','') }}">
+  </div>
+  <div class="col-auto">
+    <select name="category" class="form-select">
+      <option value="">All</option>
+      {% for c in ['Food','Transport','Shopping','Bills','Entertainment','Other'] %}
+        <option value="{{c}}" {% if request.args.get('category')==c %}selected{% endif %}>{{c}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-outline-primary">Filter</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('expense_list') }}">Reset</a>
+  </div>
+</form>
+
+<table class="table">
+  <thead><tr><th>Date</th><th>Category</th><th>Note</th><th>Amount</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for e in expenses %}
+    <tr>
+      <td>{{ e['date'] }}</td>
+      <td>{{ e['category'] }}</td>
+      <td>{{ e['note'] }}</td>
+      <td>₹ {{ '{:.2f}'.format(e['amount']) }}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('edit_expense', id=e['id']) }}">Edit</a>
+        <a class="btn btn-sm btn-outline-danger" href="{{ url_for('delete_expense', id=e['id']) }}" onclick="return confirm('Delete?')">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

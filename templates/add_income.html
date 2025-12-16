@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Add Income{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h3>Add Income</h3>
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label">Amount (₹)</label>
+        <input type="number" step="0.01" class="form-control" name="amount" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Category</label>
+        <select name="category" class="form-select" required>
+          <option>Salary</option>
+          <option>Business</option>
+          <option>Freelance</option>
+          <option>Refund</option>
+          <option>Gift</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-control" name="date" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Note</label>
+        <input class="form-control" name="note">
+      </div>
+
+      <button class="btn btn-success">Add Income</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
